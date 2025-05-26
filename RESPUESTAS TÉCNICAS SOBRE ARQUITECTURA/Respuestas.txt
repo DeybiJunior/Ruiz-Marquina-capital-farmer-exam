@@ -1,0 +1,27 @@
+RESPUESTAS TÉCNICAS SOBRE ARQUITECTURA
+25 puntos – Tiempo sugerido: 20 minutos
+Responde brevemente las siguientes preguntas. Máximo 4 líneas por pregunta.
+Preguntas:
+Arquitectura Modular: ¿Cómo modularizarías el sistema para que las cotizaciones, tickets, expedientes y otros módulos puedan mantenerse independientes pero conectados?
+
+Dividiría el sistema en módulos separados como “Cotizaciones”, “Tickets” y “Expedientes”, cada uno con su propia lógica. Estos se comunicarían entre sí solo cuando sea necesario, usando servicios o APIs, para mantener su independencia.
+
+
+Escalabilidad: ¿Qué ajustes aplicarías a la base de datos si el sistema empieza con 10 usuarios pero escala a 100?
+
+A medida que los usuarios crecen, mejoraría el diseño de la base de datos, usando índices para acelerar búsquedas y 
+dividiendo datos en tablas relacionadas. También evaluaría moverla a un servidor más potente o a la nube.
+
+Integraciones: ¿Cómo automatizarías el guardado de documentos legales en Google Drive o Dropbox?
+
+Usaría herramientas como Zapier o integraciones mediante API para que, al subir un documento legal, este se guarde automáticamente en una carpeta específica de Google Drive o Dropbox, con nombre y fecha.
+
+Deployment: ¿Cómo desplegarías esta aplicación para que sea accesible desde computadoras y celulares del estudio, con 
+bajo costo de mantenimiento?
+
+Publicaría la aplicación en la web, usando servicios como Firebase Hosting o un servidor económico. Así, cualquier dispositivo con internet podría acceder desde el navegador, sin necesidad de instalar nada.
+
+Seguridad: ¿Qué harías para mantener la seguridad básica de los datos (sin entrar en detalles avanzados)?
+
+Protegería los datos usando contraseñas seguras, cifrado básico y control de acceso para que solo usuarios autorizados vean cierta información. También haría copias de seguridad periódicas.
+

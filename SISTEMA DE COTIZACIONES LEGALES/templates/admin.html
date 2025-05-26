@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Cotizaciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container admin-container">
+        <div class="header">
+            <h1>👨‍💼 Panel de Administración</h1>
+            <p>Gestión de cotizaciones generadas</p>
+        </div>
+        
+        <div class="admin-content">
+            <div class="admin-actions">
+                <button onclick="cargarCotizaciones()" class="btn-refresh">🔄 Actualizar</button>
+                <a href="/" class="btn-back">⬅️ Volver al Formulario</a>
+            </div>
+            
+            <div class="loading" id="loadingAdmin">
+                <div class="spinner"></div>
+                <p>Cargando cotizaciones...</p>
+            </div>
+            
+            <div class="error" id="errorAdmin"></div>
+            
+            <div class="cotizaciones-table" id="cotizacionesTable">
+                <h3>Lista de Cotizaciones</h3>
+                <div class="table-responsive">
+                    <table id="tablaCotizaciones">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Email</th>
+                                <th>Servicio</th>
+                                <th>Precio</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCuerpo">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="stats-container" id="statsContainer">
+                <h3>Estadísticas Generales</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Total Cotizaciones</h4>
+                        <span id="totalCotizaciones">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Ingresos Potenciales</h4>
+                        <span id="ingresosPotenciales">S/ 0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Servicio Más Solicitado</h4>
+                        <span id="servicioPopular">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar cotizaciones al cargar la página
+        document.addEventListener('DOMContentLoaded', cargarCotizaciones);
+
+        async function cargarCotizaciones() {
+            const loading = document.getElementById('loadingAdmin');
+            const error = document.getElementById('errorAdmin');
+            const tabla = document.getElementById('cotizacionesTable');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            tabla.style.display = 'none';
+            
+            try {
+                const response = await fetch('/cotizaciones');
+                const cotizaciones = await response.json();
+                
+                if (response.ok) {
+                    mostrarCotizaciones(cotizaciones);
+                    mostrarEstadisticas(cotizaciones);
+                } else {
+                    throw new Error(cotizaciones.error || 'Error al cargar cotizaciones');
+                }
+                
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function mostrarCotizaciones(cotizaciones) {
+            const tablaCuerpo = document.getElementById('tablaCuerpo');
+            const tabla = document.getElementById('cotizacionesTable');
+            
+            tablaCuerpo.innerHTML = '';
+            
+            if (cotizaciones.length === 0) {
+                tablaCuerpo.innerHTML = '<tr><td colspan="6" class="no-data">No hay cotizaciones registradas</td></tr>';
+            } else {
+                cotizaciones.forEach(cot => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${cot.numero_cotizacion}</td>
+                        <td>${cot.nombre_cliente}</td>
+                        <td>${cot.email}</td>
+                        <td>${cot.tipo_servicio}</td>
+                        <td>S/ ${cot.precio.toLocaleString()}</td>
+                        <td>${new Date(cot.fecha_creacion).toLocaleDateString()}</td>
+                    `;
+                    tablaCuerpo.appendChild(fila);
+                });
+            }
+            
+            tabla.style.display = 'block';
+        }
+
+        function mostrarEstadisticas(cotizaciones) {
+            const total = cotizaciones.length;
+            const ingresos = cotizaciones.reduce((sum, cot) => sum + cot.precio, 0);
+            
+            // Servicio más popular
+            const servicios = {};
+            cotizaciones.forEach(cot => {
+                servicios[cot.tipo_servicio] = (servicios[cot.tipo_servicio] || 0) + 1;
+            });
+            
+            const servicioPopular = Object.keys(servicios).reduce((a, b) => 
+                servicios[a] > servicios[b] ? a : b, '-'
+            );
+            
+            document.getElementById('totalCotizaciones').textContent = total;
+            document.getElementById('ingresosPotenciales').textContent = `S/ ${ingresos.toLocaleString()}`;
+            document.getElementById('servicioPopular').textContent = servicioPopular;
+            
+            document.getElementById('statsContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
